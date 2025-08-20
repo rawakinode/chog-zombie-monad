@@ -92,6 +92,8 @@ export default class MainMenuScene extends Phaser.Scene {
         this.logoutText.setVisible(false);
         this.logoutText.on('pointerdown', async () => {
             await window.PrivyBridge?.logout?.();
+            this.playText.setVisible(false);
+            this.logoutText.setVisible(false);
         })
 
         // User text
@@ -212,8 +214,23 @@ export default class MainMenuScene extends Phaser.Scene {
     }
 
     async updatePrivyStatus(privy) {
+
+        // Reset all button
+        this.loginText.setVisible(false);
+        this.playText.setVisible(false);
+        this.logoutText.setVisible(false);
+        this.setUsernameText.setVisible(false);
+
         if (!privy?.ready) {
             this.userText.setText('Check authentication ...')
+            return;
+        }
+
+        const token = await window.PrivyBridge?.getAccessToken?.();
+        if (!token) {
+            this.userText.setText('Please login with Monad Games ID !');
+            this.loginText.setVisible(true);
+            return;
         }
 
         if (!privy?.isAuthenticated?.()) {
