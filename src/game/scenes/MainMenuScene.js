@@ -24,9 +24,9 @@ export default class MainMenuScene extends Phaser.Scene {
         const H = 900;
 
         // Gambar di atas background
-        this.add.image(570, 420, 'hero')
+        this.add.image(600, 420, 'hero')
             .setOrigin(0.5)
-            .setScale(1.6);
+            .setScale(1.2);
 
         // Judul game
         const titleGame = this.add.text(W / 2, H / 5, 'CHOG ZOMBIE', {
