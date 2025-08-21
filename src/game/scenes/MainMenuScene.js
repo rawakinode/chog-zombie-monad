@@ -12,8 +12,11 @@ export default class MainMenuScene extends Phaser.Scene {
 
     create() {
 
+        this.isLoggingOut = false;
+
         // event listener dari React / usePrivyBridge
         window.addEventListener("privy_update", (e) => {
+            if (this.isLoggingOut) return;
             this.updatePrivyStatus(e.detail);
         });
 
@@ -91,9 +94,29 @@ export default class MainMenuScene extends Phaser.Scene {
         this.logoutText.setStroke('#000000', 10);
         this.logoutText.setVisible(false);
         this.logoutText.on('pointerdown', async () => {
-            await window.PrivyBridge?.logout?.();
-            this.playText.setVisible(false);
-            this.logoutText.setVisible(false);
+            try {
+                this.isLoggingOut = true; // 🚫 block privy_update
+
+                await window.PrivyBridge?.logout?.();
+
+                // Reset UI langsung
+                this.userText.setText('Please login with Monad Games ID !');
+                this.loginText.setVisible(true);
+                this.playText.setVisible(false);
+                this.logoutText.setVisible(false);
+                this.setUsernameText.setVisible(false);
+
+                // ⏳ Hentikan PrivyBridge update selama 2 detik
+                setTimeout(() => {
+                    this.isLoggingOut = false;
+                    // Setelah 2 detik, baru boleh load ulang status
+                    this.updatePrivyStatus(window.PrivyBridge);
+                }, 3000);
+
+            } catch (err) {
+                console.error("Logout error:", err);
+                this.isLoggingOut = false;
+            }
         })
 
         // User text

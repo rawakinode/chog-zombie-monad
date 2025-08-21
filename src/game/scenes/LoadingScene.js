@@ -7,6 +7,7 @@ import gameoverMusic from '../../assets/sound/gameover.ogg'
 import heroImage from '../../assets/image/hero3.png'
 import enemyImage from '../../assets/image/enemy.png'
 import playerImage from '../../assets/image/chog.png'
+import logoChog from '../../assets/image/logo-512.png'
 
 export default class LoadingScene extends Phaser.Scene {
   constructor() {
@@ -36,11 +37,12 @@ export default class LoadingScene extends Phaser.Scene {
 
     // Load assets
     this.load.image('hero', heroImage);
+    this.load.image('enemy', enemyImage);
+    this.load.image('player', playerImage);
+    this.load.image('logo', logoChog);
     this.load.audio('homepageSound', homepageMusic);
     this.load.audio('hoverSfx', hoverMusic);
     this.load.audio('shoot', gunMusic);
-    this.load.image('enemy', enemyImage);
-    this.load.image('player', playerImage);
     this.load.audio('gameBgm', gameplayMusic);
     this.load.audio('gameoverSound', gameoverMusic);
   }
@@ -51,9 +53,13 @@ export default class LoadingScene extends Phaser.Scene {
 
     this.loadingText.setText('Ready!');
 
-    const playButton = this.add.text(W / 2, H / 2 + 120, 'ENTER GAME', {
+    this.add.image(600, 280, 'logo')
+      .setOrigin(0.5)
+      .setScale(0.5);
+
+    const playButton = this.add.text(W / 2, H / 2 + 160, 'ENTER GAME', {
       fontFamily: '"Press Start 2P"',
-      fontSize: '24px',
+      fontSize: '35px',
       fill: '#ffff00',
       stroke: '#000000',
       strokeThickness: 6
