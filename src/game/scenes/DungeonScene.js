@@ -10,7 +10,17 @@ export default class DungeonScene extends Phaser.Scene {
 
     create() {
         const W = 1200, H = 900;
-        this.cameras.main.setBackgroundColor('#08031a');
+        // this.cameras.main.setBackgroundColor('#08031a');
+
+        // Gameplay image
+        this.add.image(600, 420, 'gameplayBg')
+            .setOrigin(0.5)
+            .setScale(1.1);
+
+        // Icon Zombie dead
+        this.add.image(50, 50, 'iconDead')
+            .setOrigin(0.5)
+            .setScale(0.1);
 
         // Create pistol texture
         this.createPistolTexture();
@@ -63,9 +73,9 @@ export default class DungeonScene extends Phaser.Scene {
 
         // HUD
         this.score = 0; this.wave = 1;
-        this.scoreText = this.add.text(40, 20, 'Score: 0', {
+        this.scoreText = this.add.text(80, 38, '0', {
             fontFamily: '"Press Start 2P"',
-            fontSize: '15px',
+            fontSize: '23px',
             fill: '#ffff00',
             stroke: '#000000',
             strokeThickness: 6
@@ -306,7 +316,7 @@ export default class DungeonScene extends Phaser.Scene {
         // Musuh mati
         if (enemy.hp <= 0) {
             this.score += 1; // tambah skor langsung
-            this.scoreText.setText('Score: ' + this.score);
+            this.scoreText.setText(this.score);
 
             enemy.healthBar.clear();
             enemy.destroy();
