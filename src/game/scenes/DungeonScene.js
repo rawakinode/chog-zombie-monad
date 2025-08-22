@@ -57,7 +57,7 @@ export default class DungeonScene extends Phaser.Scene {
         this.gameMusic.play();
 
         // pistol sprite
-        this.weapon = this.add.sprite(this.player.x, this.player.y, 'pistol').setOrigin(0.08, 0.5).setDepth(3);
+        // this.weapon = this.add.sprite(this.player.x, this.player.y, 'pistol').setOrigin(0.08, 0.5).setDepth(3);
 
         // groups
         this.bullets = this.physics.add.group({
@@ -80,21 +80,21 @@ export default class DungeonScene extends Phaser.Scene {
             stroke: '#000000',
             strokeThickness: 6
         });
-        this.waveText = this.add.text(1040, 850, 'Wave: 1', {
+        this.waveText = this.add.text(35, 850, 'WAVE 1', {
             fontFamily: '"Press Start 2P"',
             fontSize: '15px',
             fill: '#ffff00'
         });
-        this.playerHealthText = this.add.text(40, 850, 'HP: 100/100', {
-            fontFamily: '"Press Start 2P"',
-            fontSize: '15px',
-            fill: '#ffff00'
-        });
+        // this.playerHealthText = this.add.text(40, 850, 'HP: 100/100', {
+        //     fontFamily: '"Press Start 2P"',
+        //     fontSize: '15px',
+        //     fill: '#ffff00'
+        // });
 
         // Tombol pause
-        this.pauseBtn = this.add.text(W - 150, 20, 'PAUSE', {
+        this.pauseBtn = this.add.text(W - 150, 30, 'PAUSE', {
             fontFamily: '"Press Start 2P"',
-            fontSize: '24px',
+            fontSize: '20px',
             fill: '#ffffff',
             stroke: '#000000',
             strokeThickness: 4
@@ -106,7 +106,7 @@ export default class DungeonScene extends Phaser.Scene {
         });
 
         // Player health bar
-        this.playerHealthBar = this.add.graphics();
+        this.playerHealthBar = this.add.graphics().setDepth(2);
         this.updatePlayerHealthBar();
 
         // input
@@ -137,7 +137,7 @@ export default class DungeonScene extends Phaser.Scene {
                 this.wave++;
                 this.spawnRate = Math.max(350, this.spawnRate - 100);
                 this.maxEnemies = Math.min(40, this.maxEnemies + 2);
-                this.waveText.setText('Wave: ' + this.wave);
+                this.waveText.setText('WAVE ' + this.wave);
             }
         });
 
@@ -209,6 +209,45 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     shootBullet(pointer) {
+        // const p = pointer || this.input.activePointer;
+        // const angle = Phaser.Math.Angle.Between(
+        //     this.player.x,
+        //     this.player.y,
+        //     p.worldX,
+        //     p.worldY
+        // );
+
+        // this.shootSound.play();
+
+        // // Jarak muzzle dari pusat pemain
+        // const muzzleDist = 20;
+        // const sx = this.player.x + Math.cos(angle) * muzzleDist;
+        // const sy = this.player.y + Math.sin(angle) * muzzleDist;
+
+        // // Gunakan pool peluru untuk efisiensi
+        // const bullet = this.bullets.get(sx, sy, 'bullet');
+        // if (!bullet) return;
+
+        // // Setel properti peluru
+        // bullet.setActive(true);
+        // bullet.setVisible(true);
+        // bullet.setCircle(4);
+        // bullet.attack = 18;
+        // const speed = 520;
+
+        // // Perbaikan: Gunakan setVelocity langsung pada body
+        // this.physics.velocityFromRotation(
+        //     angle,
+        //     speed,
+        //     bullet.body.velocity
+        // );
+
+        // // Atur umur peluru
+        // bullet.lifespan = 1200;
+
+        // // Efek visual muzzle flash
+        // this.createMuzzleFlash(sx, sy, angle);
+
         const p = pointer || this.input.activePointer;
         const angle = Phaser.Math.Angle.Between(
             this.player.x,
@@ -219,33 +258,36 @@ export default class DungeonScene extends Phaser.Scene {
 
         this.shootSound.play();
 
-        // Jarak muzzle dari pusat pemain
-        const muzzleDist = 20;
-        const sx = this.player.x + Math.cos(angle) * muzzleDist;
-        const sy = this.player.y + Math.sin(angle) * muzzleDist;
+        // === OFFSET MULUT SENAPAN RELATIF KE PLAYER ===
+        // atur sesuai sprite player (coba tweak nilainya)
+        const muzzleOffsetX = 50;   // jarak horizontal dari badan player ke ujung senjata
+        const muzzleOffsetY = 20;  // sedikit naik/turun biar pas di mulut
 
-        // Gunakan pool peluru untuk efisiensi
+        let sx = this.player.x;
+        let sy = this.player.y + muzzleOffsetY;
+
+        if (this.player.flipX) {
+            // menghadap kiri
+            sx -= muzzleOffsetX;
+        } else {
+            // menghadap kanan
+            sx += muzzleOffsetX;
+        }
+
+        // === BUAT PELURU DI POSISI MULUT SENJATA ===
         const bullet = this.bullets.get(sx, sy, 'bullet');
         if (!bullet) return;
 
-        // Setel properti peluru
         bullet.setActive(true);
         bullet.setVisible(true);
         bullet.setCircle(4);
         bullet.attack = 18;
+
         const speed = 520;
+        this.physics.velocityFromRotation(angle, speed, bullet.body.velocity);
 
-        // Perbaikan: Gunakan setVelocity langsung pada body
-        this.physics.velocityFromRotation(
-            angle,
-            speed,
-            bullet.body.velocity
-        );
-
-        // Atur umur peluru
         bullet.lifespan = 1200;
 
-        // Efek visual muzzle flash
         this.createMuzzleFlash(sx, sy, angle);
     }
 
@@ -329,7 +371,7 @@ export default class DungeonScene extends Phaser.Scene {
         player.lastHit = now;
 
         player.health -= 8 + Phaser.Math.Between(0, 4);
-        this.playerHealthText.setText(`HP: ${player.health}/${player.maxHealth}`);
+        // this.playerHealthText.setText(`HP: ${player.health}/${player.maxHealth}`);
         this.updatePlayerHealthBar();
 
         const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, player.x, player.y);
@@ -460,10 +502,10 @@ export default class DungeonScene extends Phaser.Scene {
 
         // Rotasi senjata ke pointer
         const p = this.input.activePointer;
-        const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, p.worldX, p.worldY);
-        this.weapon.x = this.player.x;
-        this.weapon.y = this.player.y;
-        this.weapon.rotation = angle;
+        // const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, p.worldX, p.worldY);
+        // this.weapon.x = this.player.x;
+        // this.weapon.y = this.player.y;
+        // this.weapon.rotation = angle;
 
         // Auto-tembak
         if (this.isMouseDown && time > this.lastShotTime + this.shootCooldown) {
