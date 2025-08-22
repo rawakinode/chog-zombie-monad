@@ -5,14 +5,13 @@ export default function usePrivyBridge() {
   const { authenticated, user, login, logout, getAccessToken, ready } = usePrivy();
 
   useEffect(() => {
-    // membuat global bridge sesuai ekspektasi Phaser
     window.PrivyBridge = {
-      login,              // function
-      logout,             // function
-      getAccessToken,     // function
-      isAuthenticated: () => authenticated, // function
-      ready,              // boolean
-      getUser: () => user || null,          // function
+      login,
+      logout,
+      getAccessToken,
+      isAuthenticated: () => authenticated,
+      ready,
+      getUser: () => user || null,
     };
 
     // kirim event ke Phaser supaya bisa update UI

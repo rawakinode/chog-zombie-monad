@@ -3,7 +3,6 @@ import startGame from "./game/Game";
 
 const App = () => {
   useEffect(() => {
-    // Jalankan Phaser hanya sekali saat komponen mount
     startGame();
   }, []);
 

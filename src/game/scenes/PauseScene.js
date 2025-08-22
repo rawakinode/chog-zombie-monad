@@ -9,7 +9,6 @@ export default class PauseScene extends Phaser.Scene {
         const W = this.scale.width;
         const H = this.scale.height;
 
-        // Background semi transparan
         this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6);
 
         // Tombol Resume
