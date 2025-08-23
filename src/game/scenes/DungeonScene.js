@@ -356,7 +356,10 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     onEnemyTouchPlayer(player, enemy) {
+        
+        // getarkan camera
         this.cameras.main.shake(100, 0.005);
+
         const now = this.time.now;
         if (now - player.lastHit < player.invulnMs) return;
         player.lastHit = now;
