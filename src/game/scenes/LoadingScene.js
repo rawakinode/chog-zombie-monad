@@ -53,9 +53,6 @@ export default class LoadingScene extends Phaser.Scene {
     this.load.audio('gameoverSound', gameoverMusic);
     this.load.audio('zombieKilled', zombieKilled);
     this.load.audio('zombieSound', zombieSound);
-
-    // Load joystick plugin
-    this.load.plugin('rexvirtualjoystickplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js', true);
   }
 
   create() {
