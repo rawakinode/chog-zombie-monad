@@ -10,12 +10,21 @@ export default class DungeonScene extends Phaser.Scene {
 
     create() {
         const W = 1200, H = 900;
-        // this.cameras.main.setBackgroundColor('#08031a');
+        // this.cameras.main.setBackgroundColor('#888888');
 
         // Gameplay image
         this.add.image(600, 420, 'gameplayBg')
             .setOrigin(0.5)
             .setScale(1.1);
+
+        // Joystick
+        this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+            x: 120,
+            y: 780,
+            radius: 60,
+            base: this.add.circle(0, 0, 60, 0x888888),
+            thumb: this.add.circle(0, 0, 30, 0xcccccc),
+        })
 
         // Icon Zombie dead
         this.add.image(50, 50, 'iconDead')
@@ -68,7 +77,7 @@ export default class DungeonScene extends Phaser.Scene {
             stroke: '#000000',
             strokeThickness: 6
         });
-        this.waveText = this.add.text(35, 850, 'WAVE 1', {
+        this.waveText = this.add.text(1070, 850, 'WAVE 1', {
             fontFamily: '"Press Start 2P"',
             fontSize: '15px',
             fill: '#ffff00'
@@ -427,20 +436,33 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        // Gerakan pemain
+
+        // --- Input dari keyboard ---
         let vx = 0, vy = 0;
         if (this.cursors.left.isDown || this.wasd.A.isDown) vx = -1;
         if (this.cursors.right.isDown || this.wasd.D.isDown) vx = 1;
         if (this.cursors.up.isDown || this.wasd.W.isDown) vy = -1;
         if (this.cursors.down.isDown || this.wasd.S.isDown) vy = 1;
 
-        // Normalisasi gerakan diagonal
-        if (vx !== 0 && vy !== 0) {
-            vx *= 0.707;
-            vy *= 0.707;
+        // --- Input dari joystick ---
+        let jx = this.joyStick.forceX; // -1 .. 1
+        let jy = this.joyStick.forceY; // -1 .. 1
+
+        // Gabungkan input (joystick prioritas kalau aktif)
+        if (jx !== 0 || jy !== 0) {
+            vx = jx;
+            vy = jy;
+        }
+
+        // --- Normalisasi supaya kecepatan konsisten ---
+        let len = Math.hypot(vx, vy); // √(vx² + vy²)
+        if (len > 0) {
+            vx /= len;
+            vy /= len;
         }
 
         this.player.setVelocity(vx * this.player.speed, vy * this.player.speed);
+
 
         // Rotasi senjata ke pointer
         const p = this.input.activePointer;
