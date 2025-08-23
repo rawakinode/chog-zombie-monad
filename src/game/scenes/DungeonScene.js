@@ -177,6 +177,7 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     spawnEnemy() {
+        this.sound.play('zombieSound', { volume: 1 });
         const W = 1200, H = 900;
         const edge = Phaser.Math.Between(0, 3);
         let x = 0, y = 0;
@@ -206,6 +207,7 @@ export default class DungeonScene extends Phaser.Scene {
         e.setBounce(0.5);
 
         this.enemies.add(e);
+
     }
 
     shootBullet(pointer) {
@@ -359,6 +361,7 @@ export default class DungeonScene extends Phaser.Scene {
         if (enemy.hp <= 0) {
             this.score += 1; // tambah skor langsung
             this.scoreText.setText(this.score);
+            this.sound.play('zombieKilled', { volume: 1 });
 
             enemy.healthBar.clear();
             enemy.destroy();

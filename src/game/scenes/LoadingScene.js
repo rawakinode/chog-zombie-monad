@@ -4,6 +4,8 @@ import homepageMusic from '../../assets/sound/homepage.ogg'
 import gunMusic from '../../assets/sound/gun.mp3'
 import gameplayMusic from '../../assets/sound/gameplay.ogg'
 import gameoverMusic from '../../assets/sound/gameover.ogg'
+import zombieKilled from '../../assets/sound/blood.mp3'
+import zombieSound from '../../assets/sound/zombie.mp3'
 import heroImage from '../../assets/image/background.png'
 import enemyImage from '../../assets/image/enemy.png'
 import playerImage from '../../assets/image/player.png'
@@ -49,6 +51,8 @@ export default class LoadingScene extends Phaser.Scene {
     this.load.audio('shoot', gunMusic);
     this.load.audio('gameBgm', gameplayMusic);
     this.load.audio('gameoverSound', gameoverMusic);
+    this.load.audio('zombieKilled', zombieKilled);
+    this.load.audio('zombieSound', zombieSound);
   }
 
   create() {
