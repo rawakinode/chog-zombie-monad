@@ -12,6 +12,7 @@ import playerImage from '../../assets/image/player.png'
 import logoChog from '../../assets/image/logo-512.png'
 import gameplayImage from '../../assets/image/gameplay.png'
 import iconDead from '../../assets/image/dead_zombie.png'
+import targetRound from '../../assets/image/target_round.png'
 
 export default class LoadingScene extends Phaser.Scene {
   constructor() {
@@ -46,6 +47,7 @@ export default class LoadingScene extends Phaser.Scene {
     this.load.image('player', playerImage);
     this.load.image('iconDead', iconDead);
     this.load.image('gameplayBg', gameplayImage);
+    this.load.image('targetRound', targetRound);
     this.load.audio('homepageSound', homepageMusic);
     this.load.audio('hoverSfx', hoverMusic);
     this.load.audio('shoot', gunMusic);

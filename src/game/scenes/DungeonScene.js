@@ -12,6 +12,37 @@ export default class DungeonScene extends Phaser.Scene {
         const W = 1200, H = 900;
         // this.cameras.main.setBackgroundColor('#888888');
 
+        // Cursor
+        this.targetSprite = this.add.image(0, 0, 'targetRound')
+            .setDepth(999)     // biar selalu di depan
+            .setScale(0.7)     // sesuaikan ukuran
+            .setVisible(false);
+
+        // Sembunyikan cursor asli
+        this.game.canvas.style.cursor = 'none';
+
+        // Update posisi saat pointer bergerak
+        this.input.on('pointermove', (pointer) => {
+            this.targetSprite.setVisible(true);
+            this.targetSprite.x = pointer.worldX;
+            this.targetSprite.y = pointer.worldY;
+        });
+
+        // Update juga saat pointer down (biar di mobile muncul target saat sentuh)
+        this.input.on('pointerdown', (pointer) => {
+            this.targetSprite.setVisible(true);
+            this.targetSprite.x = pointer.worldX;
+            this.targetSprite.y = pointer.worldY;
+        });
+
+        // Sembunyikan lagi kalau pointer keluar
+        this.input.on('pointerout', () => {
+            this.targetSprite.setVisible(false);
+        });
+
+        // variabel offset untuk efek getar
+        this.pointerOffset = { x: 0, y: 0 };
+
         // Gameplay image
         this.add.image(600, 420, 'gameplayBg')
             .setOrigin(0.5)
@@ -36,7 +67,6 @@ export default class DungeonScene extends Phaser.Scene {
         this.player.setScale(0.3); // contoh scale visual
         this.player.body.setSize(150, 150);
         this.player.body.setOffset(80, 80);
-
         this.player.speed = 200;
         this.player.maxHealth = 100;
         this.player.health = this.player.maxHealth;
@@ -84,6 +114,7 @@ export default class DungeonScene extends Phaser.Scene {
         }).setInteractive().setDepth(10);
 
         this.pauseBtn.on('pointerdown', () => {
+            this.game.canvas.style.cursor = 'default';
             this.scene.launch('PauseScene');   // buka scene Pause
             this.scene.pause();                // pause game utama
         });
@@ -230,6 +261,23 @@ export default class DungeonScene extends Phaser.Scene {
         // Umur + efek
         bullet.lifespan = 1200;
         this.createMuzzleFlash(sx, sy, shotAngle);
+
+        // 🔥 ditambahkan: Efek getar pada custom pointer (sprite crosshair)
+        if (this.targetSprite) {  
+            this.tweens.add({
+                targets: this.pointerOffset,
+                x: Phaser.Math.Between(-5, 5),
+                y: Phaser.Math.Between(-5, 5),
+                duration: 40,
+                yoyo: true,
+                repeat: 2,
+                ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    this.pointerOffset.x = 0;
+                    this.pointerOffset.y = 0;
+                }
+            });
+        }
     }
 
     createMuzzleFlash(x, y, angle) {
@@ -354,6 +402,7 @@ export default class DungeonScene extends Phaser.Scene {
 
     async onPlayerDeath() {
 
+        this.game.canvas.style.cursor = 'default';
         this.physics.pause();
 
         // Stop Music from dungeon
@@ -445,6 +494,14 @@ export default class DungeonScene extends Phaser.Scene {
         // Rotasi senjata ke pointer
         const p = this.input.activePointer;
         const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, p.worldX, p.worldY);
+
+        // Pindahkan custom pointere saat menembaki
+        if (this.targetSprite) {   // 🔄 customPointer -> targetSprite
+            this.targetSprite.setPosition(
+                p.worldX + this.pointerOffset.x,
+                p.worldY + this.pointerOffset.y
+            );
+        }
 
         // Player berotasi mengikuti pointer
         this.player.rotation = angle;
