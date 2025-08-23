@@ -35,7 +35,7 @@ export default class DungeonScene extends Phaser.Scene {
         // PERBAIKAN: Atur physics body sesuai dengan asset baru
         this.player.setScale(0.3); // contoh scale visual
         this.player.body.setSize(150, 150);
-        this.player.body.setOffset(40, 40);
+        this.player.body.setOffset(80, 80);
 
         this.player.speed = 200;
         this.player.maxHealth = 100;
@@ -43,21 +43,9 @@ export default class DungeonScene extends Phaser.Scene {
         this.player.lastHit = 0;
         this.player.invulnMs = 700;
 
-        // Deteksi pergerakan pointer
-        this.input.on('pointermove', pointer => {
-            if (pointer.x > this.player.x) {
-                this.player.setFlipX(false); // menghadap kanan
-            } else {
-                this.player.setFlipX(true);  // menghadap kiri
-            }
-        });
-
         // Background Musik Playgame
         this.gameMusic = this.sound.add('gameBgm', { loop: true, volume: 0.5 });
         this.gameMusic.play();
-
-        // pistol sprite
-        // this.weapon = this.add.sprite(this.player.x, this.player.y, 'pistol').setOrigin(0.08, 0.5).setDepth(3);
 
         // groups
         this.bullets = this.physics.add.group({
@@ -85,11 +73,6 @@ export default class DungeonScene extends Phaser.Scene {
             fontSize: '15px',
             fill: '#ffff00'
         });
-        // this.playerHealthText = this.add.text(40, 850, 'HP: 100/100', {
-        //     fontFamily: '"Press Start 2P"',
-        //     fontSize: '15px',
-        //     fill: '#ffff00'
-        // });
 
         // Tombol pause
         this.pauseBtn = this.add.text(W - 150, 30, 'PAUSE', {
@@ -211,72 +194,27 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     shootBullet(pointer) {
-        // const p = pointer || this.input.activePointer;
-        // const angle = Phaser.Math.Angle.Between(
-        //     this.player.x,
-        //     this.player.y,
-        //     p.worldX,
-        //     p.worldY
-        // );
-
-        // this.shootSound.play();
-
-        // // Jarak muzzle dari pusat pemain
-        // const muzzleDist = 20;
-        // const sx = this.player.x + Math.cos(angle) * muzzleDist;
-        // const sy = this.player.y + Math.sin(angle) * muzzleDist;
-
-        // // Gunakan pool peluru untuk efisiensi
-        // const bullet = this.bullets.get(sx, sy, 'bullet');
-        // if (!bullet) return;
-
-        // // Setel properti peluru
-        // bullet.setActive(true);
-        // bullet.setVisible(true);
-        // bullet.setCircle(4);
-        // bullet.attack = 18;
-        // const speed = 520;
-
-        // // Perbaikan: Gunakan setVelocity langsung pada body
-        // this.physics.velocityFromRotation(
-        //     angle,
-        //     speed,
-        //     bullet.body.velocity
-        // );
-
-        // // Atur umur peluru
-        // bullet.lifespan = 1200;
-
-        // // Efek visual muzzle flash
-        // this.createMuzzleFlash(sx, sy, angle);
-
         const p = pointer || this.input.activePointer;
-        const angle = Phaser.Math.Angle.Between(
-            this.player.x,
-            this.player.y,
-            p.worldX,
-            p.worldY
-        );
-
         this.shootSound.play();
 
-        // === OFFSET MULUT SENAPAN RELATIF KE PLAYER ===
-        // atur sesuai sprite player (coba tweak nilainya)
-        const muzzleOffsetX = 50;   // jarak horizontal dari badan player ke ujung senjata
-        const muzzleOffsetY = 20;  // sedikit naik/turun biar pas di mulut
+        // --- Atur offset mulut senjata (dalam koordinat lokal sprite) ---
+        const muzzleForward = 50;  // jarak ke depan dari pusat badan menuju arah laras
+        const muzzleUp = 18;  // + turun, - naik relatif ke sprite (karena sumbu Y layar ke bawah)
 
-        let sx = this.player.x;
-        let sy = this.player.y + muzzleOffsetY;
+        // Sudut orientasi player saat ini
+        const a = this.player.rotation;
 
-        if (this.player.flipX) {
-            // menghadap kiri
-            sx -= muzzleOffsetX;
-        } else {
-            // menghadap kanan
-            sx += muzzleOffsetX;
-        }
+        // Jika kamu tetap pakai flipY di update(), kita butuh balik offset vertikalnya
+        const ly = this.player.flipY ? -muzzleUp : muzzleUp;
 
-        // === BUAT PELURU DI POSISI MULUT SENJATA ===
+        // Konversi offset lokal -> dunia (rotasi 2D standar)
+        const sx = this.player.x + (muzzleForward * Math.cos(a)) - (ly * Math.sin(a));
+        const sy = this.player.y + (muzzleForward * Math.sin(a)) + (ly * Math.cos(a));
+
+        // Sudut tembakan harus dari MULUT SENJATA ke pointer, biar selalu lurus ke pointer
+        const shotAngle = Phaser.Math.Angle.Between(sx, sy, p.worldX, p.worldY);
+
+        // Ambil peluru dari pool
         const bullet = this.bullets.get(sx, sy, 'bullet');
         if (!bullet) return;
 
@@ -285,12 +223,13 @@ export default class DungeonScene extends Phaser.Scene {
         bullet.setCircle(4);
         bullet.attack = 18;
 
+        // Kecepatan peluru mengikuti shotAngle
         const speed = 520;
-        this.physics.velocityFromRotation(angle, speed, bullet.body.velocity);
+        this.physics.velocityFromRotation(shotAngle, speed, bullet.body.velocity);
 
+        // Umur + efek
         bullet.lifespan = 1200;
-
-        this.createMuzzleFlash(sx, sy, angle);
+        this.createMuzzleFlash(sx, sy, shotAngle);
     }
 
     createMuzzleFlash(x, y, angle) {
@@ -505,10 +444,21 @@ export default class DungeonScene extends Phaser.Scene {
 
         // Rotasi senjata ke pointer
         const p = this.input.activePointer;
-        // const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, p.worldX, p.worldY);
+        const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, p.worldX, p.worldY);
+
+        // Player berotasi mengikuti pointer
+        this.player.rotation = angle;
+
         // this.weapon.x = this.player.x;
         // this.weapon.y = this.player.y;
         // this.weapon.rotation = angle;
+
+        // kalau pointer di kiri → flipX true, kalau di kanan → flipX false
+        if (p.worldX < this.player.x) {
+            this.player.setFlipY(true);   // pakai flipY kalau sprite default hadap kanan
+        } else {
+            this.player.setFlipY(false);
+        }
 
         // Auto-tembak
         if (this.isMouseDown && time > this.lastShotTime + this.shootCooldown) {
