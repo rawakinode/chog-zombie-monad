@@ -307,9 +307,11 @@ export default class DungeonScene extends Phaser.Scene {
         for (let i = 0; i < 5; i++) {
             const particle = this.add.sprite(x, y, 'hit');
             particle.setDepth(5);
+            particle.setTint(0xff0000);
+            particle.setScale(3);
 
             const angle = Phaser.Math.Between(0, 360);
-            const distance = Phaser.Math.Between(5, 20);
+            const distance = Phaser.Math.Between(5, 30);
 
             this.tweens.add({
                 targets: particle,
