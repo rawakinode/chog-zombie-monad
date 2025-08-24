@@ -204,13 +204,13 @@ export default class DungeonScene extends Phaser.Scene {
 
         // PERBAIKAN PENTING: Atur physics body untuk asset baru
         // Skala visual
-        e.setScale(0.2);
+        e.setScale(0.25);
 
         // Atur ukuran body sesuai ukuran visual
-        e.body.setSize(230, 230);
+        e.body.setSize(200, 200);
 
         // Hitung offset supaya body berada di tengah gambar
-        e.body.setOffset(100, 100);
+        e.body.setOffset(80, 80);
 
         e.speed = 40 + (this.wave - 1) * 8 + Phaser.Math.Between(0, 20);
         e.maxHP = 30 + Math.floor((this.wave - 1) * 2) + Phaser.Math.Between(0, 10);
