@@ -7,12 +7,18 @@ import gameoverMusic from '../../assets/sound/gameover.ogg'
 import zombieKilled from '../../assets/sound/blood.mp3'
 import zombieSound from '../../assets/sound/zombie.mp3'
 import heroImage from '../../assets/image/background.png'
-import enemyImage from '../../assets/image/enemy3.png'
 import playerImage from '../../assets/image/player.png'
 import logoChog from '../../assets/image/logo-512.png'
 import gameplayImage from '../../assets/image/gameplay.png'
 import iconDead from '../../assets/image/dead_zombie.png'
 import targetRound from '../../assets/image/target_round.png'
+
+import enemyImage1 from '../../assets/image/zombie1.png'
+import enemyImage2 from '../../assets/image/zombie2.png'
+import enemyImage3 from '../../assets/image/zombie3.png'
+import enemyImage4 from '../../assets/image/zombie4.png'
+import enemyImage5 from '../../assets/image/zombie5.png'
+import enemyImage6 from '../../assets/image/zombie6.png'
 
 export default class LoadingScene extends Phaser.Scene {
   constructor() {
@@ -43,7 +49,12 @@ export default class LoadingScene extends Phaser.Scene {
     // Load assets
     this.load.image('logo', logoChog);
     this.load.image('hero', heroImage);
-    this.load.image('enemy', enemyImage);
+    this.load.image('enemy1', enemyImage1);
+    this.load.image('enemy2', enemyImage2);
+    this.load.image('enemy3', enemyImage3);
+    this.load.image('enemy4', enemyImage4);
+    this.load.image('enemy5', enemyImage5);
+    this.load.image('enemy6', enemyImage6);
     this.load.image('player', playerImage);
     this.load.image('iconDead', iconDead);
     this.load.image('gameplayBg', gameplayImage);

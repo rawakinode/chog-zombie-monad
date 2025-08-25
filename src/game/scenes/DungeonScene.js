@@ -68,7 +68,7 @@ export default class DungeonScene extends Phaser.Scene {
         this.player.body.setSize(150, 150);
         this.player.body.setOffset(80, 80);
         this.player.speed = 200;
-        this.player.maxHealth = 100;
+        this.player.maxHealth = 300;
         this.player.health = this.player.maxHealth;
         this.player.lastHit = 0;
         this.player.invulnMs = 700;
@@ -84,7 +84,197 @@ export default class DungeonScene extends Phaser.Scene {
             createCallback: bullet => bullet.setCircle(4)
         });
 
+        // Grup zombie
         this.enemies = this.physics.add.group();
+
+        // konfigurasi enemy types
+        this.ENEMY_TYPES = {
+            1: { key: 'enemy1', hp: 40, speed: 60, scale: 0.22 },
+            2: { key: 'enemy2', hp: 80, speed: 80, scale: 0.25 },
+            3: { key: 'enemy3', hp: 300, speed: 80, scale: 0.32 },
+            4: { key: 'enemy4', hp: 60, speed: 180, scale: 0.28 },
+            5: { key: 'enemy5', hp: 300, speed: 150, scale: 0.32 },
+            6: { key: 'enemy6', hp: 500, speed: 180, scale: 0.32 },
+        };
+
+        this.WAVE_CONFIG = {
+            // --- Early Game (1–20) ---
+            // 1: { 1: 5 },
+            1: { 1: 2, 2:2, 3:3, 4:2, 5:2, 6:2 },
+            2: { 1: 6, 2: 2 },
+            3: { 1: 6, 2: 4 },
+            4: { 1: 5, 2: 6 },
+            5: { 1: 8, 2: 4 },
+            6: { 1: 10, 2: 5 },
+            7: { 1: 8, 2: 6, 4: 2 },
+            8: { 1: 6, 2: 8, 4: 2 },
+            9: { 1: 8, 2: 10 },
+            10: { 1: 6, 2: 8, 3: 2 },
+
+            11: { 1: 10, 2: 6, 3: 2 },
+            12: { 1: 12, 2: 6, 4: 3 },
+            13: { 1: 10, 2: 8, 3: 3 },
+            14: { 1: 12, 2: 8, 4: 3 },
+            15: { 1: 10, 2: 10, 3: 4 },
+            16: { 1: 14, 2: 10 },
+            17: { 1: 12, 2: 8, 4: 4 },
+            18: { 1: 14, 2: 8, 3: 2, 4: 2 },
+            19: { 1: 16, 2: 10, 3: 3 },
+            20: { 1: 10, 2: 10, 3: 4, 4: 4 },
+
+            // --- Mid Game (21–40) ---
+            21: { 2: 12, 3: 4, 4: 2 },
+            22: { 2: 10, 3: 6, 4: 2 },
+            23: { 2: 12, 3: 6, 4: 3 },
+            24: { 1: 10, 2: 12, 3: 6 },
+            25: { 2: 12, 3: 6, 4: 4 },
+            26: { 1: 8, 2: 12, 3: 8, 4: 2 },
+            27: { 2: 14, 3: 6, 4: 4 },
+            28: { 1: 10, 2: 10, 3: 10 },
+            29: { 2: 12, 3: 8, 4: 5 },
+            30: { 1: 6, 2: 10, 3: 10, 4: 6 },
+
+            31: { 2: 12, 3: 12, 4: 6 },
+            32: { 2: 14, 3: 12 },
+            33: { 1: 10, 2: 10, 3: 12 },
+            34: { 2: 12, 3: 12, 4: 8 },
+            35: { 2: 14, 3: 12, 4: 6 },
+            36: { 1: 10, 2: 12, 3: 14 },
+            37: { 2: 16, 3: 12, 4: 6 },
+            38: { 2: 12, 3: 14, 4: 8 },
+            39: { 2: 14, 3: 14, 4: 6 },
+            40: { 2: 16, 3: 14, 4: 8 },
+
+            // --- Hard (41–60) ---
+            41: { 2: 12, 3: 16, 4: 8 },
+            42: { 2: 14, 3: 16, 4: 10 },
+            43: { 2: 12, 3: 18, 4: 10 },
+            44: { 2: 16, 3: 16, 4: 12 },
+            45: { 2: 14, 3: 18, 4: 12 },
+            46: { 2: 18, 3: 16, 4: 10 },
+            47: { 2: 16, 3: 18, 4: 12 },
+            48: { 2: 18, 3: 18, 4: 12 },
+            49: { 2: 16, 3: 20, 4: 12 },
+            50: { 2: 18, 3: 20, 4: 14 },
+
+            51: { 3: 20, 4: 14 },
+            52: { 3: 22, 4: 14 },
+            53: { 3: 20, 4: 16 },
+            54: { 3: 22, 4: 16 },
+            55: { 3: 24, 4: 16 },
+            56: { 3: 20, 4: 18 },
+            57: { 3: 22, 4: 18 },
+            58: { 3: 24, 4: 18 },
+            59: { 3: 22, 4: 20 },
+            60: { 3: 24, 4: 20 },
+
+            // --- Very Hard (61–80) ---
+            61: { 3: 20, 4: 20, 5: 2 },
+            62: { 3: 22, 4: 20, 5: 3 },
+            63: { 3: 24, 4: 20, 5: 4 },
+            64: { 3: 22, 4: 22, 5: 4 },
+            65: { 3: 24, 4: 22, 5: 5 },
+            66: { 3: 26, 4: 22, 5: 6 },
+            67: { 3: 24, 4: 24, 5: 6 },
+            68: { 3: 26, 4: 24, 5: 7 },
+            69: { 3: 28, 4: 24, 5: 8 },
+            70: { 3: 30, 4: 24, 5: 8 },
+
+            71: { 3: 28, 4: 26, 5: 8 },
+            72: { 3: 30, 4: 26, 5: 9 },
+            73: { 3: 28, 4: 28, 5: 10 },
+            74: { 3: 30, 4: 28, 5: 10 },
+            75: { 3: 32, 4: 28, 5: 10 },
+            76: { 3: 30, 4: 30, 5: 12 },
+            77: { 3: 32, 4: 30, 5: 12 },
+            78: { 3: 34, 4: 30, 5: 12 },
+            79: { 3: 32, 4: 32, 5: 14 },
+            80: { 3: 34, 4: 32, 5: 14 },
+
+            // --- Endgame (81–100) ---
+            81: { 3: 32, 4: 34, 5: 14 },
+            82: { 3: 34, 4: 34, 5: 15 },
+            83: { 3: 36, 4: 34, 5: 16 },
+            84: { 3: 34, 4: 36, 5: 16 },
+            85: { 3: 36, 4: 36, 5: 18 },
+            86: { 3: 38, 4: 36, 5: 18 },
+            87: { 3: 36, 4: 38, 5: 18 },
+            88: { 3: 38, 4: 38, 5: 20 },
+            89: { 3: 40, 4: 38, 5: 20 },
+            90: { 3: 42, 4: 38, 5: 20 },
+
+            91: { 3: 40, 4: 40, 5: 22 },
+            92: { 3: 42, 4: 40, 5: 22 },
+            93: { 3: 44, 4: 40, 5: 24 },
+            94: { 3: 42, 4: 42, 5: 24 },
+            95: { 3: 44, 4: 42, 5: 25 },
+            96: { 3: 46, 4: 42, 5: 26 },
+            97: { 3: 44, 4: 44, 5: 26 },
+            98: { 3: 46, 4: 44, 5: 28 },
+            99: { 3: 48, 4: 44, 5: 28 },
+            100: { 3: 50, 4: 46, 5: 30 },
+
+            // lanjutan wave
+            101: { 3: 52, 4: 48, 5: 32, 6: 2 },
+            102: { 3: 54, 4: 50, 5: 34, 6: 3 },
+            103: { 3: 56, 4: 52, 5: 36, 6: 4 },
+            104: { 3: 58, 4: 54, 5: 38, 6: 5 },
+            105: { 3: 60, 4: 56, 5: 40, 6: 6 },
+
+            106: { 2: 20, 3: 62, 4: 58, 5: 42, 6: 7 },
+            107: { 2: 18, 3: 64, 4: 60, 5: 44, 6: 8 },
+            108: { 2: 16, 3: 66, 4: 62, 5: 46, 6: 9 },
+            109: { 2: 14, 3: 68, 4: 64, 5: 48, 6: 10 },
+            110: { 2: 12, 3: 70, 4: 66, 5: 50, 6: 12 },
+
+            111: { 3: 72, 4: 68, 5: 52, 6: 14 },
+            112: { 3: 74, 4: 70, 5: 54, 6: 16 },
+            113: { 3: 76, 4: 72, 5: 56, 6: 18 },
+            114: { 3: 78, 4: 74, 5: 58, 6: 20 },
+            115: { 3: 80, 4: 76, 5: 60, 6: 22 },
+
+            116: { 3: 82, 4: 78, 5: 62, 6: 24 },
+            117: { 3: 84, 4: 80, 5: 64, 6: 26 },
+            118: { 3: 86, 4: 82, 5: 66, 6: 28 },
+            119: { 3: 88, 4: 84, 5: 68, 6: 30 },
+            120: { 3: 90, 4: 86, 5: 70, 6: 32 },
+
+            121: { 3: 92, 4: 88, 5: 72, 6: 34 },
+            122: { 3: 94, 4: 90, 5: 74, 6: 36 },
+            123: { 3: 96, 4: 92, 5: 76, 6: 38 },
+            124: { 3: 98, 4: 94, 5: 78, 6: 40 },
+            125: { 3: 100, 4: 96, 5: 80, 6: 42 },
+
+            126: { 3: 102, 4: 98, 5: 82, 6: 44 },
+            127: { 3: 104, 4: 100, 5: 84, 6: 46 },
+            128: { 3: 106, 4: 102, 5: 86, 6: 48 },
+            129: { 3: 108, 4: 104, 5: 88, 6: 50 },
+            130: { 3: 110, 4: 106, 5: 90, 6: 52 },
+
+            131: { 3: 112, 4: 108, 5: 92, 6: 54 },
+            132: { 3: 114, 4: 110, 5: 94, 6: 56 },
+            133: { 3: 116, 4: 112, 5: 96, 6: 58 },
+            134: { 3: 118, 4: 114, 5: 98, 6: 60 },
+            135: { 3: 120, 4: 116, 5: 100, 6: 62 },
+
+            136: { 3: 122, 4: 118, 5: 102, 6: 64 },
+            137: { 3: 124, 4: 120, 5: 104, 6: 66 },
+            138: { 3: 126, 4: 122, 5: 106, 6: 68 },
+            139: { 3: 128, 4: 124, 5: 108, 6: 70 },
+            140: { 3: 130, 4: 126, 5: 110, 6: 72 },
+
+            141: { 3: 132, 4: 128, 5: 112, 6: 74 },
+            142: { 3: 134, 4: 130, 5: 114, 6: 76 },
+            143: { 3: 136, 4: 132, 5: 116, 6: 78 },
+            144: { 3: 138, 4: 134, 5: 118, 6: 80 },
+            145: { 3: 140, 4: 136, 5: 120, 6: 82 },
+
+            146: { 3: 142, 4: 138, 5: 122, 6: 84 },
+            147: { 3: 144, 4: 140, 5: 124, 6: 86 },
+            148: { 3: 146, 4: 142, 5: 126, 6: 88 },
+            149: { 3: 148, 4: 144, 5: 128, 6: 90 },
+            150: { 3: 150, 4: 146, 5: 130, 6: 100 },
+        };
 
         // sound tembakan
         this.shootSound = this.sound.add('shoot', { volume: 2 });
@@ -143,20 +333,31 @@ export default class DungeonScene extends Phaser.Scene {
         // spawn loop
         this.spawnRate = 1400;
         this.maxEnemies = 6;
-        this.time.addEvent({ delay: this.spawnRate, loop: true, callback: this.spawnEnemyWave, callbackScope: this });
-
-        // difficulty increase
-        this.time.addEvent({
-            delay: 20000, loop: true, callback: () => {
-                this.wave++;
-                this.spawnRate = Math.max(350, this.spawnRate - 100);
-                this.maxEnemies = Math.min(40, this.maxEnemies + 2);
-                this.waveText.setText('WAVE ' + this.wave);
-            }
-        });
 
         // crosshair
         this.cross = this.add.image(W - 20, 20, 'cross').setScale(0.9).setScrollFactor(0);
+
+        // mulai wave pertama
+        this.startWave(this.wave);
+    }
+
+    startWave(waveNumber) {
+        this.wave = waveNumber;
+        this.waveText.setText('WAVE ' + this.wave);
+
+        const config = this.WAVE_CONFIG[waveNumber];
+        if (!config) {
+            console.log("All waves finished!");
+            return;
+        }
+
+        // spawn sesuai config
+        for (let type in config) {
+            const count = config[type];
+            for (let i = 0; i < count; i++) {
+                this.spawnEnemy(parseInt(type));
+            }
+        }
     }
 
     stopMusic() {
@@ -185,14 +386,12 @@ export default class DungeonScene extends Phaser.Scene {
         g.generateTexture('hit', 6, 6); g.clear();
     }
 
-    spawnEnemyWave() {
-        const toSpawn = Phaser.Math.Between(1, Math.min(3, this.maxEnemies - this.enemies.getLength()));
-        for (let i = 0; i < toSpawn; i++) this.spawnEnemy();
-    }
-
-    spawnEnemy() {
-        this.sound.play('zombieSound', { volume: 1 });
+    spawnEnemy(typeId) {
         const W = 1200, H = 900;
+        const config = this.ENEMY_TYPES[typeId];
+        if (!config) return;
+
+        // posisi random di tepi layar
         const edge = Phaser.Math.Between(0, 3);
         let x = 0, y = 0;
         if (edge === 0) { x = Phaser.Math.Between(0, W); y = -20; }
@@ -200,28 +399,28 @@ export default class DungeonScene extends Phaser.Scene {
         else if (edge === 2) { x = -20; y = Phaser.Math.Between(0, H); }
         else { x = W + 20; y = Phaser.Math.Between(0, H); }
 
-        const e = this.physics.add.sprite(x, y, 'enemy');
-
-        // PERBAIKAN PENTING: Atur physics body untuk asset baru
-        // Skala visual
-        e.setScale(0.25);
-
-        // Atur ukuran body sesuai ukuran visual
+        const e = this.physics.add.sprite(x, y, config.key);
+        e.setScale(config.scale);
         e.body.setSize(200, 200);
-
-        // Hitung offset supaya body berada di tengah gambar
         e.body.setOffset(80, 80);
 
-        e.speed = 40 + (this.wave - 1) * 8 + Phaser.Math.Between(0, 20);
-        e.maxHP = 30 + Math.floor((this.wave - 1) * 2) + Phaser.Math.Between(0, 10);
+        e.speed = config.speed;
+        e.maxHP = config.hp;
         e.hp = e.maxHP;
-        e.reward = 5 + this.wave;
-        e.setCollideWorldBounds(true);
-        e.healthBar = this.add.graphics().setDepth(4);
-        e.setBounce(0.5);
+
+        // <<< UPDATE: tambahkan healthBar untuk tiap musuh
+        e.healthBar = this.add.graphics();
+        e.healthBar.setDepth(10);
+
+        // <<< UPDATE: hancurkan healthBar saat musuh mati
+        e.on('destroy', () => {
+            if (e.healthBar) {
+                e.healthBar.destroy();
+                e.healthBar = null;
+            }
+        });
 
         this.enemies.add(e);
-
     }
 
     shootBullet(pointer) {
@@ -263,7 +462,7 @@ export default class DungeonScene extends Phaser.Scene {
         this.createMuzzleFlash(sx, sy, shotAngle);
 
         // 🔥 ditambahkan: Efek getar pada custom pointer (sprite crosshair)
-        if (this.targetSprite) {  
+        if (this.targetSprite) {
             this.tweens.add({
                 targets: this.pointerOffset,
                 x: Phaser.Math.Between(-5, 5),
@@ -358,7 +557,7 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     onEnemyTouchPlayer(player, enemy) {
-        
+
         // getarkan camera
         this.cameras.main.shake(100, 0.005);
 
@@ -501,8 +700,8 @@ export default class DungeonScene extends Phaser.Scene {
         const p = this.input.activePointer;
         const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, p.worldX, p.worldY);
 
-        // Pindahkan custom pointere saat menembaki
-        if (this.targetSprite) {   // 🔄 customPointer -> targetSprite
+        // Pindahkan targetSprite saat menembaki
+        if (this.targetSprite) {
             this.targetSprite.setPosition(
                 p.worldX + this.pointerOffset.x,
                 p.worldY + this.pointerOffset.y
@@ -512,13 +711,9 @@ export default class DungeonScene extends Phaser.Scene {
         // Player berotasi mengikuti pointer
         this.player.rotation = angle;
 
-        // this.weapon.x = this.player.x;
-        // this.weapon.y = this.player.y;
-        // this.weapon.rotation = angle;
-
-        // kalau pointer di kiri → flipX true, kalau di kanan → flipX false
+        // kalau pointer di kiri → flipY true, kalau di kanan → flipY false
         if (p.worldX < this.player.x) {
-            this.player.setFlipY(true);   // pakai flipY kalau sprite default hadap kanan
+            this.player.setFlipY(true);
         } else {
             this.player.setFlipY(false);
         }
@@ -532,24 +727,28 @@ export default class DungeonScene extends Phaser.Scene {
         // Tembak dengan spasi
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) this.shootBullet();
 
-        // Musuh mengikuti pemain
+        // Musuh mengikuti pemain + update health bar
         this.enemies.getChildren().forEach(e => {
             if (!e.active) return;
             this.physics.moveToObject(e, this.player, e.speed);
 
             // Flip arah musuh sesuai posisi player
-            if (this.player.x < e.x) {
-                e.setFlipX(true);   // menghadap kiri
-            } else {
-                e.setFlipX(false);  // menghadap kanan (default)
-            }
+            e.setFlipX(this.player.x < e.x);
 
             // Health bar musuh
-            e.healthBar.clear();
-            const pct = Phaser.Math.Clamp(e.hp / e.maxHP, 0, 1);
-            const w = 30 * pct;
-            e.healthBar.fillStyle(0xff0000, 1);
-            e.healthBar.fillRect(e.x - 15, e.y - 25, w, 4);
+            if (e.healthBar) {
+                e.healthBar.clear();
+
+                // background bar hitam
+                e.healthBar.fillStyle(0x000000, 1);
+                e.healthBar.fillRect(e.x - 15, e.y - 25, 30, 4);
+
+                // bar merah sesuai HP
+                const pct = Phaser.Math.Clamp(e.hp / e.maxHP, 0, 1);
+                const w = 30 * pct;
+                e.healthBar.fillStyle(0xff0000, 1);
+                e.healthBar.fillRect(e.x - 15, e.y - 25, w, 4);
+            }
         });
 
         // Pembersihan peluru
@@ -567,6 +766,20 @@ export default class DungeonScene extends Phaser.Scene {
         // Update health bar pemain
         if (this.player.active) {
             this.updatePlayerHealthBar();
+        }
+
+        // Cek wave selesai
+        // Cek kalau semua musuh sudah mati
+        if (this.enemies.countActive(true) === 0) {
+            if (this.wave < 50) {
+                this.startWave(this.wave + 1);
+            } else {
+                this.scene.pause();
+                this.add.text(400, 300, "GAME WAVE CLEAR!", {
+                    fontSize: '40px',
+                    fill: '#fff'
+                }).setOrigin(0.5);
+            }
         }
     }
 
