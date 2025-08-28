@@ -64,7 +64,7 @@ export default class DungeonScene extends Phaser.Scene {
         this.player.setCollideWorldBounds(true);
 
         // PERBAIKAN: Atur physics body sesuai dengan asset baru
-        this.player.setScale(0.3); // contoh scale visual
+        this.player.setScale(0.27); // contoh scale visual
         this.player.body.setSize(150, 150);
         this.player.body.setOffset(80, 80);
         this.player.speed = 200;
