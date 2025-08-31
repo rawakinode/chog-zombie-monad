@@ -77,11 +77,18 @@ export default class DungeonScene extends Phaser.Scene {
         this.gameMusic = this.sound.add('gameBgm', { loop: true, volume: 0.5 });
         this.gameMusic.play();
 
-        // groups
+        // Fisik peluru bullet dari gambar
         this.bullets = this.physics.add.group({
-            defaultKey: 'bullet',
+            defaultKey: 'bulletImg',
             maxSize: 50,
-            createCallback: bullet => bullet.setCircle(4)
+            createCallback: bullet => {
+                bullet.setOrigin(0.5, 0.5);
+                bullet.setCircle(4);
+                bullet.body.setOffset(
+                    bullet.width / 2 - 4,  
+                    bullet.height / 2 - 4
+                );
+            }
         });
 
         // Grup zombie
@@ -100,7 +107,7 @@ export default class DungeonScene extends Phaser.Scene {
         this.WAVE_CONFIG = {
             // --- Early Game (1–20) ---
             // 1: { 1: 5 },
-            1: { 1: 1, 2:1, 3:1, 4:1, 5:1, 6:1 },
+            1: { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1 },
             2: { 1: 6, 2: 2 },
             3: { 1: 6, 2: 4 },
             4: { 1: 5, 2: 6 },
@@ -445,7 +452,7 @@ export default class DungeonScene extends Phaser.Scene {
         const shotAngle = Phaser.Math.Angle.Between(sx, sy, p.worldX, p.worldY);
 
         // Ambil peluru dari pool
-        const bullet = this.bullets.get(sx, sy, 'bullet');
+        const bullet = this.bullets.get(sx, sy, 'bulletImg');
         if (!bullet) return;
 
         bullet.setActive(true);
@@ -456,6 +463,9 @@ export default class DungeonScene extends Phaser.Scene {
         // Kecepatan peluru mengikuti shotAngle
         const speed = 520;
         this.physics.velocityFromRotation(shotAngle, speed, bullet.body.velocity);
+
+        // arah tembakan PNG
+        bullet.setRotation(shotAngle + Phaser.Math.DegToRad(180));
 
         // Umur + efek
         bullet.lifespan = 1200;
