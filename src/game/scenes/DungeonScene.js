@@ -107,7 +107,7 @@ export default class DungeonScene extends Phaser.Scene {
         this.WAVE_CONFIG = {
             // --- Early Game (1–20) ---
             // 1: { 1: 5 },
-            1: { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1 },
+            1: { 1: 6 },
             2: { 1: 6, 2: 2 },
             3: { 1: 6, 2: 4 },
             4: { 1: 5, 2: 6 },
