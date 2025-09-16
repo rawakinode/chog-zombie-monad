@@ -10,7 +10,6 @@ export default class DungeonScene extends Phaser.Scene {
 
     create() {
         const W = 1200, H = 900;
-        // this.cameras.main.setBackgroundColor('#888888');
 
         // Cursor
         this.targetSprite = this.add.image(0, 0, 'targetRound')
@@ -85,7 +84,7 @@ export default class DungeonScene extends Phaser.Scene {
                 bullet.setOrigin(0.5, 0.5);
                 bullet.setCircle(4);
                 bullet.body.setOffset(
-                    bullet.width / 2 - 4,  
+                    bullet.width / 2 - 4,
                     bullet.height / 2 - 4
                 );
             }

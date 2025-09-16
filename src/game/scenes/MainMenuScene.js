@@ -267,7 +267,7 @@ export default class MainMenuScene extends Phaser.Scene {
                 const wallet = user?.linkedAccounts?.[0]?.embeddedWallets?.[0]?.address;
                 this.loginText.setVisible(false);
                 try {
-                    const response = await axios.get(`https://monad-games-id-site.vercel.app/api/check-wallet?wallet=${wallet}`);
+                    const response = await axios.get(`https://www.monadclip.fun/api/check-wallet?wallet=${wallet}`);
                     const res = response.data;
 
                     if (res.hasUsername == true) {
